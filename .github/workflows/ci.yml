@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  create:
+    tags: [v*]
+
+permissions:
+  contents: read
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Pull all history with tags for correct versionning
+      run: git fetch --prune --unshallow
+    - name: Format check
+      run: ./scala fmt --check .
+    - name: Tests
+      run: ./scala test .
+    - name: Publish local
+      run: ./scala --power publish local --organization com.goyeau --name moulin --compute-version git:dynver .

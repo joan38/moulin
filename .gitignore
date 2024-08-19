@@ -1,0 +1,40 @@
+# Logs and databases #
+######################
+*.log
+*.data
+*.redo
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Editor Files #
+################
+*~
+*.swp
+
+# IntelliJ specific files/directories #
+#######################################
+out
+.idea
+!.idea/runConfigurations
+*.ipr
+*.iws
+*.iml
+atlassian-ide-plugin.xml
+
+# Scala #
+#########
+.bsp
+.scala-build
+
+# Visual Studio Code #
+######################
+.vscode
+.bloop
+.metals
+.ammonite
+*.semanticdb
