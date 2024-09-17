@@ -23,5 +23,19 @@ jobs:
       run: ./scala fmt --check .
     - name: Tests
       run: ./scala test .
-    - name: Publish local
-      run: ./scala --power publish local --organization com.goyeau --name moulin --compute-version git:dynver .
+    - name: Publish
+      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release'
+      run: |
+        ./scala --power publish --organization=com.goyeau \
+                                --name=moulin \
+                                --description="Build multi-projects with Scala CLI" \
+                                --developer="joan38|Joan Goyeau|https://github.com/joan38" \
+                                --license=Apache-2.0:https://spdx.org/licenses/Apache-2.0.html \
+                                --url=https://github.com/joan38/moulin \
+                                --vcs="https://github.com/joan38/moulin|scm:git:https://github.com/joan38/moulin.git|scm:git:https://github.com/joan38/moulin.git" \
+                                --compute-version=git:dynver \
+                                --publish-repository=sonatype \
+                                --user=value:V3Bd3uEm \
+                                --password=value:${{secrets.sonatype_password}} \
+                                --secret-key="value:${{secrets.pgp_secret_key}}" \
+                                .
