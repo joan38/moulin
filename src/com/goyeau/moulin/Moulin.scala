@@ -15,7 +15,7 @@ import com.goyeau.moulin.util.{getCanonicalScalaName, getSimpleScalaName}
   *
   * This is the entry point for the build definition.
   */
-trait Moulin extends BspModule with WildCard:
+trait Moulin extends BspModule:
   def projectName: String = getClass.getSimpleScalaName
 
   def main(args: Array[String]): Unit =
@@ -30,8 +30,11 @@ trait Moulin extends BspModule with WildCard:
   @tailrec
   final private[moulin] def executeCommand(command: String, initialError: Option[CommandError] = None): Unit =
     try
-      val result = Runner[Any](s"""import ${getClass.getCanonicalScalaName}.*
-                                  |$command""".stripMargin)
+      val projectCanonicalName = getClass.getCanonicalScalaName
+      val result = Runner[Any](
+        s"""import $projectCanonicalName.*, com.goyeau.moulin.command.WildCard.*; val any = $projectCanonicalName.any; def anyOf[Module] = $projectCanonicalName.anyOf[Module]; val all = $projectCanonicalName.all; def allOf[Module] = $projectCanonicalName.allOf[Module]
+           |$command""".stripMargin
+      )
       assertNotFunction(
         result,
         throw CommandError(

@@ -85,7 +85,7 @@ package scalamoduletest:
     val path = projectPath / "lib"
     os.makeDir(path)
     os.write(path / "hello.scala", """def hello = "hello"""")
-    os.write(path / "project.scala", """//> using test.dependency org.scalameta::munit::1.0.1""")
+    os.write(path / "project.scala", """//> using test.dependency org.scalameta::munit::1.0.2""")
     os.write(
       path / "hello.test.scala",
       """import munit.FunSuite

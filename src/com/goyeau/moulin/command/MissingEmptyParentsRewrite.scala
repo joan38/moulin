@@ -4,7 +4,10 @@ package com.goyeau.moulin.command
   */
 object MissingEmptyParentsRewrite:
   def unapply(error: CommandError): Option[String => String] =
-    val regex = """method (.+) in .+ must be called with \(\) argument""".r.unanchored
+    val methodInRegex = """method (.+) in .+ must be called with \(\) argument""".r.unanchored
+    val methodRegex   = """method (.+) must be called with \(\) argument""".r.unanchored
+
     error.getMessage match
-      case regex(methodName) => Some(_.replaceAll(s"($methodName)\\b", "$1()"))
-      case _                 => None
+      case methodInRegex(methodName) => Some(_.replaceAll(s"($methodName)\\b", "$1()"))
+      case methodRegex(methodName)   => Some(_.replaceAll(s"($methodName)\\b", "$1()"))
+      case _                         => None
