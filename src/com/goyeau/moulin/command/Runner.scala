@@ -31,6 +31,7 @@ object Runner:
 
       given Context = compileCtx0.fresh
         .setSetting(compileCtx0.settings.usejavacp, true)
+        .setSetting(compileCtx0.settings.experimental, true) // For some macro functions marked @experimental
         .setSetting(compileCtx0.settings.outputDir, outputDirectory)
         .setReporter(DetailsThrowingReporter())
       val compiler: Compiler = newCompiler
