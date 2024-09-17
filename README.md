@@ -2,6 +2,8 @@
 
 Build multi-projects with Scala CLI.
 
+https://github.com/user-attachments/assets/f4ffd9cf-e8bb-4592-9111-33718204c51f
+
 
 ## Getting Started
 
