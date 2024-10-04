@@ -1,15 +1,18 @@
 # Moulin
 
-Build multi-projects with Scala CLI.
+Build multi-projects with Scala CLI!
 
 https://github.com/user-attachments/assets/f4ffd9cf-e8bb-4592-9111-33718204c51f
 
 
 ## Getting Started
 
-> [!TIP]
+> [!NOTE]
 > Before using Moulin for your project I would recommend using [the scala CLI](https://scala-cli.virtuslab.org) to start with.  
 > Once scala CLI is too limited for your project (need for multi modules, use plugins...) then this is where Moulin can help:
+
+> [!TIP]
+> This tutorial exists in [moulin-simple-example](https://github.com/joan38/moulin-simple-example). So you could also just check it out and play with it. But be careful because you'll be hooked.
 
 If not done already, create a folder for your project and cd in it:
 ```sh
