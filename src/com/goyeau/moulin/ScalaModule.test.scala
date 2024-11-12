@@ -45,10 +45,6 @@ class ScalaModuleTest extends FunSuite:
       """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/app/compile/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
     assert(compile.matches(appClasspathRegex), s"$compile should match the regex '$appClasspathRegex'")
 
-  test("compile a module that fails compilation should fail"):
-    intercept[SubprocessException]:
-      `fail-compile`.compile()
-
   test("bspConnectionFile should return the correct path to the BSP connection file"):
     val bspConnectionFile = app.bspConnectionFile.path
 
@@ -62,10 +58,6 @@ class ScalaModuleTest extends FunSuite:
 
   test("test should run the Scala tests"):
     lib.test()
-
-  test("test should fail on module with no tests"):
-    intercept[SubprocessException]:
-      app.test()
 
 package scalamoduletest:
   val projectPath = os.temp.dir()

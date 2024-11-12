@@ -1,5 +1,6 @@
 // Main
 //> using scala 3.5.2
+//> using jvm 17
 //> using options -deprecation -feature -unchecked -Wvalue-discard -Wnonunit-statement -Wunused:implicits -Wunused:explicits -Wunused:imports -Wunused:locals -Wunused:params -Wunused:privates -new-syntax -Xfatal-warnings
 
 //> using dependency ch.epfl.scala:bsp4j:2.1.1
