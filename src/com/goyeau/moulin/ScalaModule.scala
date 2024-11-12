@@ -1,11 +1,8 @@
 package com.goyeau.moulin
 
-import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.goyeau.moulin.bsp.BspModule
-import com.goyeau.moulin.bsp.BspModule.FullBuildServer
 import com.goyeau.moulin.bsp.BspModule.scalaBspFile
-import org.eclipse.lsp4j.jsonrpc.Launcher
-import os.{proc, pwd, read, rel, Path, RelPath}
+import os.{proc, pwd, Path, RelPath}
 import com.goyeau.moulin.cache.Cache.cached
 import com.goyeau.moulin.cache.Cache.dest
 import com.goyeau.moulin.cache.PathRef
@@ -48,7 +45,7 @@ trait ScalaModule extends BspModule:
 
   def bspConnectionFile: PathRef = cached(upstreamClassPath(), sources, generatedSources):
     (upstreamClassPath, sources, generatedSources) =>
-      proc(
+      val _ = proc(
         Seq(scalaRunner.resolveFrom(moduleDir).toString, "setup-ide", s"--scala-version=$scalaVersion") ++
           Seq(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
           Seq(s"--classpath=$upstreamClassPath") ++
@@ -72,7 +69,7 @@ trait ScalaModule extends BspModule:
   /** Test the Scala module.
     */
   def test(): Unit =
-    proc(
+    val _ = proc(
       Seq(scalaRunner.resolveFrom(moduleDir).toString, "test", s"--scala-version=$scalaVersion") ++
         Seq(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
         Seq(s"--classpath=${upstreamClassPath()}") ++
@@ -85,7 +82,7 @@ trait ScalaModule extends BspModule:
     */
   // def run: Unit = run()
   def run(mainClass: String = "", interactive: Boolean = false): Unit =
-    proc(
+    val _ = proc(
       Seq(scalaRunner.resolveFrom(moduleDir).toString, "run", s"--scala-version=$scalaVersion") ++
         Seq(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
         Seq(s"--classpath=${upstreamClassPath()}") ++
@@ -101,7 +98,7 @@ trait ScalaModule extends BspModule:
   def assembly(preamble: Boolean = true, force: Boolean = false): PathRef =
     cached(upstreamClassPath(), sources, generatedSources): (upstreamClassPath, sources, generatedSources) =>
       val jar = dest / "assembly.jar"
-      proc(
+      val _ = proc(
         Seq(scalaRunner.resolveFrom(moduleDir).toString, "--power", "package", "--assembly", s"-o=$jar"),
         Seq(s"--preamble=$preamble", s"--force=$force") ++
           Seq(s"--scala-version=$scalaVersion") ++

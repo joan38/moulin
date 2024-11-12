@@ -1,7 +1,7 @@
 package com.goyeau.moulin.bsp
 
+import annotation.nowarn
 import cats.implicits.*
-import cats.Monoid
 import ch.epfl.scala.bsp4j.*
 import ch.epfl.scala.bsp4j.StatusCode.{ERROR, *}
 import com.goyeau.moulin.Moulin
@@ -164,6 +164,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => ScalacOptionsResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
+  @nowarn
   def buildTargetScalaTestClasses(params: ScalaTestClassesParams): CompletableFuture[ScalaTestClassesResult] =
     forwardRequestToScala(
       params.getTargets,
@@ -172,6 +173,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => ScalaTestClassesResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
+  @nowarn
   def buildTargetScalaMainClasses(params: ScalaMainClassesParams): CompletableFuture[ScalaMainClassesResult] =
     forwardRequestToScala(
       params.getTargets,

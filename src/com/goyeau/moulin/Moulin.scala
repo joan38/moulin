@@ -1,12 +1,11 @@
 package com.goyeau.moulin
 
-import com.goyeau.moulin.ScalaModule
 import com.goyeau.moulin.bsp.BspModule
 import com.goyeau.moulin.bsp.BspModule.scalaBspFile
-import com.goyeau.moulin.command.{CommandError, MissingEmptyParentsRewrite, Runner, WildCard}
+import com.goyeau.moulin.command.{CommandError, MissingEmptyParentsRewrite, Runner}
 import com.goyeau.moulin.util.assertNotFunction
 import scala.annotation.tailrec
-import os.{pwd, Path}
+import os.Path
 import com.goyeau.moulin.util.scalaBuildPath
 import com.goyeau.moulin.cache.PathRef
 import com.goyeau.moulin.util.{getCanonicalScalaName, getSimpleScalaName}

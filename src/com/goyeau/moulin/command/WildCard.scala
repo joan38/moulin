@@ -2,17 +2,13 @@ package com.goyeau.moulin.command
 
 import com.goyeau.moulin.Moulin
 import com.goyeau.moulin.command.WildCard.*
-import scala.reflect.ClassTag
 import scala.reflect.NameTransformer
 import scala.util.Try
 import scala.Dynamic
 import scala.language.dynamics
 import scala.reflect.ensureAccessible
 import scala.quoted.*
-import scala.util.boundary
 import scala.annotation.experimental
-import alleycats.Empty
-import scala.collection.mutable.AnyRefMap.AnyRefMapBuilder
 
 // trait WildCard:
 //   @experimental transparent inline def any: CombinedModules           = this.any
@@ -85,7 +81,7 @@ object WildCard:
       ${ combineModuleMacro[Parent, Module]('parent, "all") }
 
   @experimental
-  private def combineModuleMacro[Parent: Type, Module: Type](using Quotes)(
+  def combineModuleMacro[Parent: Type, Module: Type](using Quotes)(
       parent: Expr[Parent],
       anyAll: "any" | "all"
   ): Expr[CombinedModules] =
@@ -263,7 +259,7 @@ object WildCard:
     def selectDynamic(name: String): Any =
       try
         val field = selectedValue.getClass.getField(NameTransformer.encode(name))
-        ensureAccessible(field)
+        val _     = ensureAccessible(field)
         field.get(selectedValue)
       catch
         case ex: NoSuchFieldException =>

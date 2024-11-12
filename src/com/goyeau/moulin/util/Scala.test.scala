@@ -1,6 +1,5 @@
 package com.goyeau.moulin.util
 
-import classtest.*
 import com.goyeau.moulin.util.Scala.scalaBinaryVersion
 import munit.FunSuite
 

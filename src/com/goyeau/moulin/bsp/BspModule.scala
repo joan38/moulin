@@ -1,6 +1,5 @@
 package com.goyeau.moulin.bsp
 
-import cats.syntax.all.*
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, *}
 import com.goyeau.moulin.Moulin
 import com.goyeau.moulin.bsp.BspConnectionDetails.given
@@ -8,7 +7,6 @@ import com.goyeau.moulin.command.WildCard.allOf
 import com.goyeau.moulin.cache.PathRef
 import io.circe.parser.decode
 import io.circe.syntax.*
-import java.io.{FileOutputStream, OutputStream}
 import java.util.concurrent.Executors
 import org.eclipse.lsp4j.jsonrpc.Launcher
 import os.{proc, pwd, read, rel, write, Path}
@@ -95,9 +93,10 @@ object BspModule:
 
     scalaServerLaunchers.foreach(_.startListening())
     clientLauncher.startListening().get()
+    ()
 
   private inline def allBspModules[Project](inline project: Project): Seq[BspModule] = ${ allBspModulesMacro('project) }
-  private def allBspModulesMacro(project: Expr[Any])(using Quotes): Expr[Seq[BspModule]] =
+  def allBspModulesMacro(project: Expr[Any])(using Quotes): Expr[Seq[BspModule]] =
     import quotes.reflect.*
 
     def findAllBspModules(obj: Symbol): Seq[Expr[BspModule]] =
