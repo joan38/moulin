@@ -1,13 +1,10 @@
 package com.goyeau.moulin.cache
 
 import com.goyeau.moulin.ScalaModule
-import java.io.ByteArrayOutputStream
 import munit.FunSuite
-import os.pwd
 import os.Path
 import os.SubprocessException
 import scalamoduletest.*
-import java.io.PrintStream
 
 class ScalaModuleTest extends FunSuite:
   test("sources should return the correct source files"):

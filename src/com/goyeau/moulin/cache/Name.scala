@@ -10,7 +10,7 @@ opaque type Name <: String = String
 object Name:
   inline given Name = ${ nameMacro }
 
-  private def nameMacro(using Quotes): Expr[Name] =
+  def nameMacro(using Quotes): Expr[Name] =
     import quotes.reflect.*
 
     def enclosingsUntilClassDef(sym: Symbol): Seq[Symbol] =

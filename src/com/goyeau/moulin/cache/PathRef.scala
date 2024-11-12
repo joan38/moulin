@@ -3,7 +3,7 @@ package com.goyeau.moulin.cache
 import java.nio.file.Files
 import java.nio.file.FileSystemException
 import java.security.{DigestOutputStream, MessageDigest}
-import java.io.{ByteArrayInputStream, InputStream, OutputStream}
+import java.io.{InputStream, OutputStream}
 import scala.util.Using
 import io.circe.Encoder
 import io.circe.Decoder

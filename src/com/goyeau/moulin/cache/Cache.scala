@@ -7,7 +7,6 @@ import io.circe.Decoder
 import io.circe.syntax.*
 import io.circe.parser.*
 import os.Path
-import scala.quoted.*
 import cats.syntax.all.*
 import scala.jdk.OptionConverters.*
 
