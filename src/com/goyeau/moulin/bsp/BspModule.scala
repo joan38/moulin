@@ -60,11 +60,11 @@ object BspModule:
       *
       * This will block and lisen for incoming requests on stdin and reply on stdout.
       */
-  inline def startServer[Project](inline project: Project): Unit =
+  inline def startServer(inline project: BspModule): Unit =
     val executorService = Executors.newCachedThreadPool()
     val buildClient     = MoulinBuildClient()
 
-    val scalaServerLaunchers = allBspModules(project).map(bspModule =>
+    val scalaServerLaunchers = (project +: allBspModules(project)).map(bspModule =>
       val scalaConnectionFile = bspModule.bspConnectionFile.path
       val connectionDetails   = decode[BspConnectionDetails](read(scalaConnectionFile)).fold(throw _, identity)
       val process             = proc(connectionDetails.getArgv.asScala).spawn(cwd = pwd)
