@@ -11,10 +11,10 @@ import scala.language.dynamics
 @experimental
 class WildCardTest extends FunSuite:
   test("any should combine vals"):
-    assertEquals(project.any.someVal, (project.module2.someVal, project.module1.someVal))
+    assertEquals(project.any.someVal, (project.module1.someVal, project.module2.someVal))
 
   test("any should combine defs"):
-    assertEquals(project.any.someDef, (project.module2.someDef, project.module1.someDef))
+    assertEquals(project.any.someDef, (project.module1.someDef, project.module2.someDef))
 
   test("any should not include private member"):
     compileErrors("""project.any.privateVal""")
@@ -33,8 +33,8 @@ class WildCardTest extends FunSuite:
     assertEquals(
       project.any.someDefWithAParam("ta"),
       (
-        project.module2.someDefWithAParam("ta"),
-        project.module1.someDefWithAParam("ta")
+        project.module1.someDefWithAParam("ta"),
+        project.module2.someDefWithAParam("ta")
       )
     )
 
@@ -42,8 +42,8 @@ class WildCardTest extends FunSuite:
     assertEquals(
       project.all.someDefWithAParam("ta"),
       (
-        project.module2.someDefWithAParam("ta"),
         project.module1.someDefWithAParam("ta"),
+        project.module2.someDefWithAParam("ta"),
         project.module2.nested.someDefWithAParam("ta")
       )
     )
@@ -52,8 +52,8 @@ class WildCardTest extends FunSuite:
     assertEquals(
       project.all.someDef,
       (
-        project.module2.someDef,
         project.module1.someDef,
+        project.module2.someDef,
         project.module2.nested.inception.someDef
       )
     )

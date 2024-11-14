@@ -56,7 +56,7 @@ object Cache:
 
   /** A cache that is scoped to the given name and arguments.
     */
-  given (using Name, Args): Cache = new Cache:
+  given (using Name, Args): Cache = new:
     val path =
       val functionPath    = summon[Name].split("\\.").foldLeft(os.rel)(_ / _)
       val functionArgs    = summon[Args].value.flatten.map(_.value)

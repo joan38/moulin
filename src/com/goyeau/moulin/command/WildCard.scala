@@ -116,6 +116,7 @@ object WildCard:
     import quotes.reflect.*
 
     modules
+      .sortBy(_.fullName)
       .flatMap(module =>
         (module.fieldMembers ++ module.methodMembers)
           .filterNot(member =>
