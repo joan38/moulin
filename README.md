@@ -54,7 +54,7 @@ object `my-project` extends Moulin:
 
   // A trait to factor out common settings
   trait MyProjectModule extends ScalaModule:
-    override def scalaVersion = "3.5.0"
+    override def scalaVersion = "3.5.2"
 ```
 Make it executable:
 ```sh
@@ -119,7 +119,7 @@ object `my-project` extends Moulin:
   object common extends MyProjectModule
 
   trait MyProjectModule extends ScalaModule:
-    override def scalaVersion  = "3.5.0"
+    override def scalaVersion  = "3.5.2"
     override def scalacOptions = super.scalacOptions ++ ScalacOptions.tokensForVersion(
       ScalaVersion.unsafeFromString(scalaVersion),
       ScalacOptions.default + sourceFutureMigration ++ fatalWarningOptions
@@ -145,7 +145,7 @@ import com.goyeau.moulin.cache.Cache.cached
 
 object `my-project` extends Moulin:
   object app extends ScalaModule:
-    override def scalaVersion  = "3.5.0"
+    override def scalaVersion  = "3.5.2"
 
     def push = cached(assembly()): assembly =>
       println(s"Pushing: ${assembly.path}")

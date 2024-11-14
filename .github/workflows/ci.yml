@@ -17,12 +17,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Pull all history with tags for correct versionning
       run: git fetch --prune --unshallow
+
     - name: Format check
       run: ./scala fmt --check .
+
     - name: Tests
       run: ./scala test .
+
     - name: Publish
       if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event_name == 'release'
       run: |
