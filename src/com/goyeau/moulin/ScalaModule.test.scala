@@ -101,13 +101,13 @@ package scalamoduletest:
 
   object app extends ScalaModule:
     override def moduleDir    = appPath
-    override def scalaVersion = "3.5.0"
+    override def scalaVersion = "3.5.2"
     override def dependsOn    = Seq(lib)
 
   object lib extends ScalaModule:
     override def moduleDir    = libPath
-    override def scalaVersion = "3.5.0"
+    override def scalaVersion = "3.5.2"
 
   object `fail-compile` extends ScalaModule:
     override def moduleDir    = failCompilePath
-    override def scalaVersion = "3.5.0"
+    override def scalaVersion = "3.5.2"
