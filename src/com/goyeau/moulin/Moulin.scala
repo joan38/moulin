@@ -45,7 +45,7 @@ trait Moulin extends BspModule:
       case e @ MissingEmptyParentsRewrite(rewrite) => executeCommand(rewrite(command), initialError.orElse(Some(e)))
       case e: CommandError =>
         Console.err.println(initialError.getOrElse(e).details)
-        System.exit(1)
+        sys.exit(1)
 
   /** The path to the BSP connection file of Scala for the Moulin build definition.
     */

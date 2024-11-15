@@ -8,14 +8,14 @@ class ScalaModuleTest extends FunSuite:
   test("sources should return the correct source files"):
     assertEquals(app.sources, Seq(PathRef(projectPath / "app")))
 
-  test("upstreamClassPath on a module without dependency should return an empty string"):
+  test("upstreamClassPath on a module without module dependency should return an empty string"):
     assertEquals(lib.upstreamClassPath(), "")
 
   test("upstreamClassPath on a module with a dependency should return the correct class path of upstream modules"):
     val upstreamClassPath = app.upstreamClassPath()
 
     val libClasspathRegex =
-      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/lib/compile/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
+      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/lib/workspace/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
     assert(
       upstreamClassPath.matches(libClasspathRegex),
       s"$upstreamClassPath should match the regex $libClasspathRegex"
@@ -27,7 +27,7 @@ class ScalaModuleTest extends FunSuite:
     val compile = lib.compile()
 
     val libClasspathRegex =
-      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/lib/compile/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
+      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/lib/workspace/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
     assert(compile.matches(libClasspathRegex), s"$compile should match the regex $libClasspathRegex")
 
     assert(!compile.contains("app"), s"$compile should not contain 'app'")
@@ -36,18 +36,18 @@ class ScalaModuleTest extends FunSuite:
     val compile = app.compile()
 
     val libClasspathRegex =
-      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/lib/compile/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
+      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/lib/workspace/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
     assert(compile.matches(libClasspathRegex), s"$compile should match the regex $libClasspathRegex")
 
     val appClasspathRegex =
-      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/app/compile/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
+      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/app/workspace/-?\d+/dest/\.scala-build/dest_\w+-\w+/classes/main:.+"""
     assert(compile.matches(appClasspathRegex), s"$compile should match the regex '$appClasspathRegex'")
 
   test("bspConnectionFile should return the correct path to the BSP connection file"):
     val bspConnectionFile = app.bspConnectionFile.path
 
     val regex =
-      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/app/bspConnectionFile/-?\d+/dest/\.bsp/scala-cli.json"""
+      """.+\.scala-build/com/goyeau/moulin/cache/scalamoduletest/app/workspace/-?\d+/dest/\.bsp/scala-cli.json"""
     assert(bspConnectionFile.toString.matches(regex), s"$bspConnectionFile does not match the regex $regex")
     assert(
       os.read(bspConnectionFile).contains(""""name": "scala-cli""""),
@@ -59,6 +59,8 @@ class ScalaModuleTest extends FunSuite:
 
 package scalamoduletest:
   val projectPath = os.temp.dir()
+
+  val lastestScala = "3.5.2"
 
   // Create all the files for the app module
   val appPath =
@@ -91,13 +93,13 @@ package scalamoduletest:
 
   object app extends ScalaModule:
     override def moduleDir    = appPath
-    override def scalaVersion = "3.5.2"
+    override def scalaVersion = lastestScala
     override def dependsOn    = Seq(lib)
 
   object lib extends ScalaModule:
     override def moduleDir    = libPath
-    override def scalaVersion = "3.5.2"
+    override def scalaVersion = lastestScala
 
   object `fail-compile` extends ScalaModule:
     override def moduleDir    = failCompilePath
-    override def scalaVersion = "3.5.2"
+    override def scalaVersion = lastestScala
