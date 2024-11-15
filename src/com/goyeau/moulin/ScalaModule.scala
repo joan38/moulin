@@ -45,29 +45,37 @@ trait ScalaModule extends BspModule:
     */
   def generatedSources: Seq[PathRef] = Seq.empty
 
-  /** The class path of the upstream modules.
+  /** Workspace directory where the module is compiled.
+    */
+  def workspace: Path = dest
+
+  /** The combined class path of the modules depended on.
+    *
+    * This also deduplicates the class path and removes the scala-library.
     */
   def upstreamClassPath(): String =
-    dependsOn.flatMap(_.compile().split(":")).filterNot(_.contains("scala-library")).mkString(":")
+    dependsOn.flatMap(_.compile().split(":")).distinct.filterNot(_.contains("scala-library")).mkString(":")
 
   def bspConnectionFile: PathRef = cached(upstreamClassPath(), sources, generatedSources):
     (upstreamClassPath, sources, generatedSources) =>
       // Set the scala CLI executable to what we have in the build BSP connection file
       if os.exists(buildBspFile) then
         val buildConnectionDetails = decode[BspConnectionDetails](os.read(buildBspFile)).fold(throw _, identity)
-        System.setProperty("coursier.mainJar", buildConnectionDetails.getArgv().get(0))
-        ()
+        val _                      = sys.props.addOne("coursier.mainJar" -> buildConnectionDetails.getArgv().get(0))
 
       ScalaCli.main(
         Array("setup-ide", s"--scala-version=$scalaVersion") ++
-          Array(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
+          Array(s"--workspace=$workspace", s"--semanticdb-sourceroot=$moduleDir") ++
           Array(s"--classpath=$upstreamClassPath") ++
           scalacOptions.flatMap(option => Array("--scalac-option", option)) ++
           (sources ++ generatedSources).map(_.path.toString)
       )
-      PathRef(dest / scalaBspFile)
+      PathRef(workspace / scalaBspFile)
 
   /** Compiles the Scala module.
+    *
+    * @return
+    *   the class path of the compiled code.
     */
   def compile(): String = cached(upstreamClassPath(), sources, generatedSources):
     (upstreamClassPath, sources, generatedSources) =>
@@ -75,7 +83,7 @@ trait ScalaModule extends BspModule:
         Console.withOut(out):
           ScalaCli.main(
             Array("compile", s"--scala-version=$scalaVersion") ++
-              Array(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
+              Array(s"--workspace=$workspace", s"--semanticdb-sourceroot=$moduleDir") ++
               Array(s"--classpath=$upstreamClassPath", "--print-class-path") ++
               scalacOptions.flatMap(option => Array("--scalac-option", option)) ++
               (sources ++ generatedSources).map(_.path.toString)
@@ -87,7 +95,7 @@ trait ScalaModule extends BspModule:
   def test(): Unit =
     ScalaCli.main(
       Array("test", s"--scala-version=$scalaVersion") ++
-        Array(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
+        Array(s"--workspace=$workspace", s"--semanticdb-sourceroot=$moduleDir") ++
         Array(s"--classpath=${upstreamClassPath()}") ++
         scalacOptions.flatMap(option => Array("--scalac-option", option)) ++
         (sources ++ generatedSources).map(_.path.toString)
@@ -98,7 +106,7 @@ trait ScalaModule extends BspModule:
   def run(mainClass: String = "", interactive: Boolean = false): Unit =
     ScalaCli.main(
       Array("run", s"--scala-version=$scalaVersion") ++
-        Array(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
+        Array(s"--workspace=$workspace", s"--semanticdb-sourceroot=$moduleDir") ++
         Array(s"--classpath=${upstreamClassPath()}") ++
         scalacOptions.flatMap(option => Array("--scalac-option", option)) ++
         (if mainClass.nonEmpty then Array(s"--main-class=$mainClass") else Array.empty[String]) ++
@@ -107,6 +115,9 @@ trait ScalaModule extends BspModule:
     )
 
   /** Create an assembly fat jar.
+    *
+    * @return
+    *   the path to the fat jar.
     */
   def assembly(preamble: Boolean = true, force: Boolean = false): PathRef =
     cached(upstreamClassPath(), sources, generatedSources): (upstreamClassPath, sources, generatedSources) =>
@@ -115,7 +126,7 @@ trait ScalaModule extends BspModule:
         Array("--power", "package", "--assembly", s"-o=$jar") ++
           Array(s"--preamble=$preamble", s"--force=$force") ++
           Array(s"--scala-version=$scalaVersion") ++
-          Array(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
+          Array(s"--workspace=$workspace", s"--semanticdb-sourceroot=$moduleDir") ++
           Array(s"--classpath=$upstreamClassPath") ++
           scalacOptions.flatMap(option => Array("--scalac-option", option)) ++
           (sources ++ generatedSources).map(_.path.toString)
