@@ -65,7 +65,7 @@ object BspModule:
     val scalaServerLaunchers = (project +: allBspModules(project)).map(bspModule =>
       val scalaConnectionFile = bspModule.bspConnectionFile.path
       val connectionDetails   = decode[BspConnectionDetails](read(scalaConnectionFile)).fold(throw _, identity)
-      val process             = proc(connectionDetails.getArgv.asScala).spawn(cwd = pwd)
+      val process             = proc(connectionDetails.getArgv.asScala).spawn()
 
       Launcher
         .Builder[FullBuildServer]()

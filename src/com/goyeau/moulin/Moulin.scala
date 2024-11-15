@@ -49,7 +49,7 @@ trait Moulin extends BspModule:
 
   /** The path to the BSP connection file of Scala for the Moulin build definition.
     */
-  def bspConnectionFile: PathRef = PathRef(scalaBuildPath / "moulin" / scalaBspFile)
+  def bspConnectionFile: PathRef = PathRef(Moulin.buildBspFile)
 
   object bsp:
     export BspModule.setup
@@ -60,5 +60,6 @@ trait Moulin extends BspModule:
   def clean(): Unit = os.remove.all(scalaBuildPath)
 
 object Moulin:
-  val name    = getClass.getSimpleScalaName
-  val version = "0.0.0"
+  val name         = getClass.getSimpleScalaName
+  val version      = "0.0.0"
+  val buildBspFile = scalaBuildPath / "moulin" / scalaBspFile

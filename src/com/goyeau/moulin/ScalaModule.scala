@@ -1,6 +1,7 @@
 package com.goyeau.moulin
 
 import com.goyeau.moulin.bsp.BspModule
+import com.goyeau.moulin.Moulin.buildBspFile
 import com.goyeau.moulin.bsp.BspModule.scalaBspFile
 import os.{pwd, Path, RelPath}
 import com.goyeau.moulin.cache.Cache.cached
@@ -8,9 +9,12 @@ import com.goyeau.moulin.cache.Cache.dest
 import com.goyeau.moulin.cache.PathRef
 import com.goyeau.moulin.util.getSimpleScalaName
 import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import scala.cli.ScalaCli
 import scala.util.Using
+import com.goyeau.moulin.bsp.BspConnectionDetails.given
+import ch.epfl.scala.bsp4j.BspConnectionDetails
+import io.circe.parser.decode
+import scala.jdk.CollectionConverters.*
 
 /** A ScalaModule is a module that can be compiled and run with Scala.
   */
@@ -21,7 +25,7 @@ trait ScalaModule extends BspModule:
     */
   def scalaVersion: String =
     Using.resource(ByteArrayOutputStream()): out =>
-      Console.withOut(PrintStream(out)):
+      Console.withOut(out):
         ScalaCli.main(Array("version", "--scala-version", moduleDir.toString))
       out.toString.trim
 
@@ -48,6 +52,12 @@ trait ScalaModule extends BspModule:
 
   def bspConnectionFile: PathRef = cached(upstreamClassPath(), sources, generatedSources):
     (upstreamClassPath, sources, generatedSources) =>
+      // Set the scala CLI executable to what we have in the build BSP connection file
+      if os.exists(buildBspFile) then
+        val buildConnectionDetails = decode[BspConnectionDetails](os.read(buildBspFile)).fold(throw _, identity)
+        System.setProperty("coursier.mainJar", buildConnectionDetails.getArgv().get(0))
+        ()
+
       ScalaCli.main(
         Array("setup-ide", s"--scala-version=$scalaVersion") ++
           Array(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
@@ -62,7 +72,7 @@ trait ScalaModule extends BspModule:
   def compile(): String = cached(upstreamClassPath(), sources, generatedSources):
     (upstreamClassPath, sources, generatedSources) =>
       Using.resource(ByteArrayOutputStream()): out =>
-        Console.withOut(PrintStream(out)):
+        Console.withOut(out):
           ScalaCli.main(
             Array("compile", s"--scala-version=$scalaVersion") ++
               Array(s"--workspace=$dest", s"--semanticdb-sourceroot=$moduleDir") ++
@@ -85,7 +95,6 @@ trait ScalaModule extends BspModule:
 
   /** Run the Scala module.
     */
-  // def run: Unit = run()
   def run(mainClass: String = "", interactive: Boolean = false): Unit =
     ScalaCli.main(
       Array("run", s"--scala-version=$scalaVersion") ++

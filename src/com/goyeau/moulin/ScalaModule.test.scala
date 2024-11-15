@@ -2,8 +2,6 @@ package com.goyeau.moulin.cache
 
 import com.goyeau.moulin.ScalaModule
 import munit.FunSuite
-import os.Path
-import os.SubprocessException
 import scalamoduletest.*
 
 class ScalaModuleTest extends FunSuite:
