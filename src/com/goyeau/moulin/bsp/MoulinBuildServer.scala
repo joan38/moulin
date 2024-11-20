@@ -24,7 +24,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results.map(_.getCapabilities).combineAll
     )).asJava.toCompletableFuture
 
-  def buildTargetCleanCache(params: CleanCacheParams): CompletableFuture[CleanCacheResult] =
+  override def buildTargetCleanCache(params: CleanCacheParams): CompletableFuture[CleanCacheResult] =
     forwardRequestToScala(
       params.getTargets,
       CleanCacheParams(_),
@@ -32,7 +32,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => CleanCacheResult(results.forall(_.getCleaned))
     )
 
-  def buildTargetCompile(params: CompileParams): CompletableFuture[CompileResult] =
+  override def buildTargetCompile(params: CompileParams): CompletableFuture[CompileResult] =
     forwardRequestToScala(
       params.getTargets,
       CompileParams(_),
@@ -50,7 +50,9 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
         )
     )
 
-  def buildTargetDependencySources(params: DependencySourcesParams): CompletableFuture[DependencySourcesResult] =
+  override def buildTargetDependencySources(
+      params: DependencySourcesParams
+  ): CompletableFuture[DependencySourcesResult] =
     forwardRequestToScala(
       params.getTargets,
       DependencySourcesParams(_),
@@ -58,7 +60,9 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => DependencySourcesResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetDependencyModules(params: DependencyModulesParams): CompletableFuture[DependencyModulesResult] =
+  override def buildTargetDependencyModules(
+      params: DependencyModulesParams
+  ): CompletableFuture[DependencyModulesResult] =
     forwardRequestToScala(
       params.getTargets,
       DependencyModulesParams(_),
@@ -66,12 +70,12 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => DependencyModulesResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetInverseSources(params: InverseSourcesParams): CompletableFuture[InverseSourcesResult] = (for
+  override def buildTargetInverseSources(params: InverseSourcesParams): CompletableFuture[InverseSourcesResult] = (for
     results <- scalaServers.traverse(_.buildTargetInverseSources(params).asScala)
     targets = results.flatMap(_.getTargets.asScala)
   yield InverseSourcesResult(targets.asJava)).asJava.toCompletableFuture
 
-  def buildTargetResources(params: ResourcesParams): CompletableFuture[ResourcesResult] =
+  override def buildTargetResources(params: ResourcesParams): CompletableFuture[ResourcesResult] =
     forwardRequestToScala(
       params.getTargets,
       ResourcesParams(_),
@@ -79,7 +83,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => ResourcesResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetOutputPaths(params: OutputPathsParams): CompletableFuture[OutputPathsResult] =
+  override def buildTargetOutputPaths(params: OutputPathsParams): CompletableFuture[OutputPathsResult] =
     forwardRequestToScala(
       params.getTargets,
       OutputPathsParams(_),
@@ -87,7 +91,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => OutputPathsResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetRun(params: RunParams): CompletableFuture[RunResult] =
+  override def buildTargetRun(params: RunParams): CompletableFuture[RunResult] =
     forwardRequestToScala(
       Seq(params.getTarget).asJava,
       targets => RunParams(targets.asScala.head),
@@ -105,7 +109,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
         )
     )
 
-  def buildTargetSources(params: SourcesParams): CompletableFuture[SourcesResult] =
+  override def buildTargetSources(params: SourcesParams): CompletableFuture[SourcesResult] =
     forwardRequestToScala(
       params.getTargets,
       SourcesParams(_),
@@ -113,7 +117,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => SourcesResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetTest(params: TestParams): CompletableFuture[TestResult] =
+  override def buildTargetTest(params: TestParams): CompletableFuture[TestResult] =
     forwardRequestToScala(
       params.getTargets,
       TestParams(_),
@@ -131,7 +135,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
         )
     )
 
-  def buildTargetWrappedSources(params: WrappedSourcesParams): CompletableFuture[WrappedSourcesResult] =
+  override def buildTargetWrappedSources(params: WrappedSourcesParams): CompletableFuture[WrappedSourcesResult] =
     forwardRequestToScala(
       params.getTargets,
       WrappedSourcesParams(_),
@@ -139,24 +143,25 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => WrappedSourcesResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildShutdown(): CompletableFuture[Object] = (for _ <- scalaServers.traverse(_.buildShutdown().asScala)
+  override def buildShutdown(): CompletableFuture[Object] = (for _ <- scalaServers.traverse(_.buildShutdown().asScala)
   yield Object()).asJava.toCompletableFuture
 
-  def debugSessionStart(params: DebugSessionParams): CompletableFuture[DebugSessionAddress] = ???
+  override def debugSessionStart(params: DebugSessionParams): CompletableFuture[DebugSessionAddress] = ???
 
-  def onBuildInitialized(): Unit = scalaServers.foreach(_.onBuildInitialized())
+  override def onBuildInitialized(): Unit = scalaServers.foreach(_.onBuildInitialized())
 
-  def onBuildExit(): Unit = scalaServers.foreach(_.onBuildExit())
+  override def onBuildExit(): Unit = scalaServers.foreach(_.onBuildExit())
 
-  def workspaceBuildTargets(): CompletableFuture[WorkspaceBuildTargetsResult] = (for
+  override def workspaceBuildTargets(): CompletableFuture[WorkspaceBuildTargetsResult] = (for
     results <- scalaServers.traverse(_.workspaceBuildTargets().asScala)
     targets = results.flatMap(_.getTargets.asScala)
   yield WorkspaceBuildTargetsResult(targets.asJava)).asJava.toCompletableFuture
 
-  def workspaceReload(): CompletableFuture[Object] = (for _ <- scalaServers.traverse(_.workspaceReload().asScala)
-  yield Object()).asJava.toCompletableFuture
+  override def workspaceReload(): CompletableFuture[Object] =
+    (for _ <- scalaServers.traverse(_.workspaceReload().asScala)
+    yield Object()).asJava.toCompletableFuture
 
-  def buildTargetScalacOptions(params: ScalacOptionsParams): CompletableFuture[ScalacOptionsResult] =
+  override def buildTargetScalacOptions(params: ScalacOptionsParams): CompletableFuture[ScalacOptionsResult] =
     forwardRequestToScala(
       params.getTargets,
       ScalacOptionsParams(_),
@@ -165,7 +170,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
     )
 
   @nowarn
-  def buildTargetScalaTestClasses(params: ScalaTestClassesParams): CompletableFuture[ScalaTestClassesResult] =
+  override def buildTargetScalaTestClasses(params: ScalaTestClassesParams): CompletableFuture[ScalaTestClassesResult] =
     forwardRequestToScala(
       params.getTargets,
       ScalaTestClassesParams(_),
@@ -174,7 +179,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
     )
 
   @nowarn
-  def buildTargetScalaMainClasses(params: ScalaMainClassesParams): CompletableFuture[ScalaMainClassesResult] =
+  override def buildTargetScalaMainClasses(params: ScalaMainClassesParams): CompletableFuture[ScalaMainClassesResult] =
     forwardRequestToScala(
       params.getTargets,
       ScalaMainClassesParams(_),
@@ -182,7 +187,7 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => ScalaMainClassesResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetJavacOptions(params: JavacOptionsParams): CompletableFuture[JavacOptionsResult] =
+  override def buildTargetJavacOptions(params: JavacOptionsParams): CompletableFuture[JavacOptionsResult] =
     forwardRequestToScala(
       params.getTargets,
       JavacOptionsParams(_),
@@ -190,7 +195,9 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => JavacOptionsResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetJvmTestEnvironment(params: JvmTestEnvironmentParams): CompletableFuture[JvmTestEnvironmentResult] =
+  override def buildTargetJvmTestEnvironment(
+      params: JvmTestEnvironmentParams
+  ): CompletableFuture[JvmTestEnvironmentResult] =
     forwardRequestToScala(
       params.getTargets,
       JvmTestEnvironmentParams(_),
@@ -198,7 +205,9 @@ class MoulinBuildServer(scalaServers: Seq[FullBuildServer]) extends FullBuildSer
       results => JvmTestEnvironmentResult(results.flatMap(_.getItems.asScala).asJava)
     )
 
-  def buildTargetJvmRunEnvironment(params: JvmRunEnvironmentParams): CompletableFuture[JvmRunEnvironmentResult] =
+  override def buildTargetJvmRunEnvironment(
+      params: JvmRunEnvironmentParams
+  ): CompletableFuture[JvmRunEnvironmentResult] =
     forwardRequestToScala(
       params.getTargets,
       JvmRunEnvironmentParams(_),
