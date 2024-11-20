@@ -28,19 +28,19 @@ object BuildServerCapabilities:
   given Monoid[CompileProvider] with
     def empty = CompileProvider(Seq.empty.asJava)
     def combine(x: CompileProvider, y: CompileProvider) =
-      CompileProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).asJava)
+      CompileProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).toSet.toSeq.asJava)
 
   given Monoid[TestProvider] with
     def empty = TestProvider(Seq.empty.asJava)
     def combine(x: TestProvider, y: TestProvider) =
-      TestProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).asJava)
+      TestProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).toSet.toSeq.asJava)
 
   given Monoid[RunProvider] with
     def empty = RunProvider(Seq.empty.asJava)
     def combine(x: RunProvider, y: RunProvider) =
-      RunProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).asJava)
+      RunProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).toSet.toSeq.asJava)
 
   given Monoid[DebugProvider] with
     def empty = DebugProvider(Seq.empty.asJava)
     def combine(x: DebugProvider, y: DebugProvider) =
-      DebugProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).asJava)
+      DebugProvider((x.getLanguageIds.asScala ++ y.getLanguageIds.asScala).toSet.toSeq.asJava)

@@ -9,11 +9,12 @@ import io.circe.parser.decode
 import io.circe.syntax.*
 import java.util.concurrent.Executors
 import org.eclipse.lsp4j.jsonrpc.Launcher
-import os.{proc, pwd, read, rel, write, Path}
+import os.{proc, pwd, Path}
 import scala.build.bsp.ScalaScriptBuildServer
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 import scala.quoted.*
+import java.io.FileOutputStream
 
 /** A module that can be managed with a BSP client.
   */
@@ -24,6 +25,10 @@ trait BspModule:
     */
   def bspConnectionFile: PathRef
 
+  /** Dependencies of this module on other BSP modules.
+    */
+  def bspDeps: Seq[BspModule] = Seq.empty
+
 object BspModule:
   trait FullBuildServer
       extends BuildServer
@@ -32,7 +37,7 @@ object BspModule:
       with JvmBuildServer
       with ScalaScriptBuildServer
 
-  val bspFolder     = rel / ".bsp"
+  val bspFolder     = os.rel / ".bsp"
   val scalaBspFile  = bspFolder / "scala-cli.json"
   val moulinBspFile = pwd / bspFolder / "moulin.json"
 
@@ -51,7 +56,7 @@ object BspModule:
       Bsp4j.PROTOCOL_VERSION,
       Seq("scala", "java").asJava
     )
-    write.over(moulinBspFile, connectionDetails.asJson.spaces2, createFolders = true)
+    os.write.over(moulinBspFile, connectionDetails.asJson.spaces2, createFolders = true)
     moulinBspFile
 
     /** Start the BSP server for the given project.
@@ -59,24 +64,33 @@ object BspModule:
       * This will block and lisen for incoming requests on stdin and reply on stdout.
       */
   inline def startServer(inline project: BspModule): Unit =
-    val executorService = Executors.newCachedThreadPool()
-    val buildClient     = MoulinBuildClient()
+    val buildClient = MoulinBuildClient()
 
-    val scalaServerLaunchers = (project +: allBspModules(project)).map(bspModule =>
-      val scalaConnectionFile = bspModule.bspConnectionFile.path
-      val connectionDetails   = decode[BspConnectionDetails](read(scalaConnectionFile)).fold(throw _, identity)
-      val process             = proc(connectionDetails.getArgv.asScala).spawn()
+    val bspToScalaServerLaunchers = (project +: allBspModules(project))
+      .map(bspModule =>
+        val scalaConnectionFile = bspModule.bspConnectionFile.path
+        val connectionDetails   = decode[BspConnectionDetails](os.read(scalaConnectionFile)).fold(throw _, identity)
+        val process             = proc(connectionDetails.getArgv.asScala).spawn()
 
-      Launcher
-        .Builder[FullBuildServer]()
-        .setOutput(process.stdin)
-        .setInput(process.stdout)
-        .setLocalService(buildClient)
-        .setExecutorService(executorService)
-        .setRemoteInterface(classOf[FullBuildServer])
-        .create()
-    )
-    val scalaServers = scalaServerLaunchers.map(_.getRemoteProxy)
+        val launcher = Launcher
+          .Builder[FullBuildServer]()
+          .setOutput(process.stdin)
+          .setInput(process.stdout)
+          .setLocalService(buildClient)
+          .setRemoteInterface(classOf[FullBuildServer])
+          .create()
+
+        bspModule -> launcher
+      )
+      .toMap
+
+    val scalaServers = bspToScalaServerLaunchers.toSeq.map:
+      case (bspModule, launcher) =>
+        BuildServerWithDeps(
+          launcher.getRemoteProxy,
+          bspModule.bspDeps.map(bspToScalaServerLaunchers(_).getRemoteProxy)
+        )
+
     // Serve a combination of all Scala modules' build server in one server
     val buildServer = MoulinBuildServer(scalaServers)
 
@@ -91,7 +105,7 @@ object BspModule:
     val scalaClient = clientLauncher.getRemoteProxy
     buildClient.connect(scalaClient)
 
-    scalaServerLaunchers.foreach(_.startListening())
+    bspToScalaServerLaunchers.values.foreach(_.startListening())
     clientLauncher.startListening().get()
     ()
 
